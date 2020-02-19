@@ -1,0 +1,31 @@
+name: Node.js CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: ['12']
+        os: [macOS-10.14]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build, and test 
+      env:
+        CI: true
+        AIO_RUNTIME_AUTH: ${{ secrets.AIO_RUNTIME_AUTH }}
+        AIO_RUNTIME_NAMESPACE: 23294_62843
+        AIO_RUNTIME_APIHOST: 'https://adobeioruntime.net'
+        AIO_CNA_TVMURL: https://adobeio.adobeioruntime.net/apis/tvm/
+      run: |
+        npm install -g @adobe/aio-cli
+        npm install
+        npm run test
+        aio app deploy -v
